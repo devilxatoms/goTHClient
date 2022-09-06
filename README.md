@@ -1,0 +1,2 @@
+# goTHClient
+Golang Trufflehog client
