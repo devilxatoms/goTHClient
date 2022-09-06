@@ -16,7 +16,3 @@ jobs:
         run: go build -v ./...
       - name: Test
         run: go test -v ./...
-      - name: Lint
-        run: golangci-lint run
-      - name: Coverage
-        run: go test -coverprofile=coverage.txt -covermode=atomic
