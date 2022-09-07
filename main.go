@@ -5,12 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
-	"strconv"
 )
 
 type Header struct {
@@ -27,6 +25,7 @@ type Request struct {
 	method  string
 	url     string
 	body    *bytes.Buffer
+	writer  *multipart.Writer
 	headers []Header
 	params  []Param
 }
@@ -36,35 +35,18 @@ var reportPathFlag string
 var serverFlag string
 var scanTypeFlag string
 
-func buildMultipartBody(reportPath, paramName string) *bytes.Buffer {
-	file, err := os.Open(reportPath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fileContents, err := ioutil.ReadAll(file)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fi, err := file.Stat()
-	if err != nil {
-		log.Fatal(err)
-	}
-	file.Close()
+func formData(reportPath string) (*multipart.Writer, *bytes.Buffer) {
+	file, _ := os.Open(reportPath)
+	defer file.Close()
 
-	body := new(bytes.Buffer)
+	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile(paramName, fi.Name())
-	if err != nil {
-		log.Fatal(err)
-	}
-	part.Write(fileContents)
+	part, _ := writer.CreateFormFile("file", file.Name())
+	// log.Printf("--------Writer----: %v", writer)
+	io.Copy(part, file)
+	// writer.Close()
 
-	writer.Close()
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	return body
+	return writer, body
 }
 
 func (r *Request) AddHeader(name, value string) {
@@ -76,11 +58,25 @@ func (r *Request) AddParam(name, value string) {
 }
 
 func callApi(request *Request) {
-	log.Printf("1 Current Lenght: %v", strconv.FormatInt(int64(request.body.Len()), 10))
 	client := &http.Client{}
+	writer := request.writer
+
+	// add params
+	for _, param := range request.params {
+		log.Printf("Adding param %s with value %s", param.name, param.value)
+
+		writer.WriteField(param.name, param.value)
+
+	}
+
+	err := writer.Close()
+	if err != nil {
+		log.Fatal("error in params: \n", err)
+	}
+
 	req, err := http.NewRequest(request.method, request.url, request.body)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("error in req: \n", err)
 	}
 
 	// add headers
@@ -88,28 +84,16 @@ func callApi(request *Request) {
 		req.Header.Add(header.name, header.value)
 	}
 
-	log.Printf("2 Current Lenght: %v", strconv.FormatInt(int64(request.body.Len()), 10))
-
-	writer := multipart.NewWriter(request.body)
-	log.Printf("3 Current Lenght: %v", strconv.FormatInt(int64(request.body.Len()), 10))
-
-	err = writer.Close()
-	if err != nil {
-		log.Fatal(err)
-	}
-	// add params
-	for _, param := range request.params {
-		_ = writer.WriteField(param.name, param.value)
-	}
-	log.Printf("4 Current Lenght: %v", strconv.FormatInt(int64(request.body.Len()), 10))
-
-	req.Header.Add("Content-Length", strconv.FormatInt(int64(request.body.Len()), 10))
+	req.Header.Add("Content-Type", "multipart/form-data; boundary="+writer.Boundary())
+	req.Header.Add("Accept", "application/json")
 
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Printf("5 Current Lenght: %v", strconv.FormatInt(int64(request.body.Len()), 10))
-		// log.Printf("Request failed: %v", req)
 		log.Fatal("send request error: \n", err)
+	} else {
+		log.Printf("\n\nResponse Status: %v\n", resp.Status)
+		log.Printf("Response Headers: %v\n", resp.Header)
+		log.Printf("Response Body: %v\n", resp.Body)
 	}
 
 	defer resp.Body.Close()
@@ -118,9 +102,11 @@ func callApi(request *Request) {
 
 func GetUsers(server, token string) *Request {
 	// construct the request
-	getUsersRequest := NewRequest("GET", server+"/api/v2/users/", nil, nil, nil)
+	getUsersRequest := NewRequest("GET", server+"/api/v2/users/", nil, nil, nil, nil)
 	// add headers to the request
 	getUsersRequest.AddHeader("Authorization", "Token "+token)
+	getUsersRequest.AddHeader("Content-Type", "application/json")
+
 	// call the api
 	callApi(getUsersRequest)
 	return getUsersRequest
@@ -128,26 +114,21 @@ func GetUsers(server, token string) *Request {
 
 func uploadReport(server, reportPath, token string) *Request {
 	// get the file as a multipart body
-	bodyData := buildMultipartBody(reportPath, "file")
+	wr, dt := formData(reportPath)
 	// construct the request
-	uploadRequest := NewRequest("POST", server+"/api/v2/import-scan/", bodyData, nil, nil)
+	uploadRequest := NewRequest("POST", server+"/api/v2/import-scan/", dt, wr, nil, nil)
 	// add headers to the request
 	uploadRequest.AddHeader("Authorization", "Token "+token)
-	// uploadRequest.AddHeader("Content-Type", "application/json")
 	// add params to the request
-	uploadRequest.AddParam("scan_type", "Trufflehog Scan")
+	uploadRequest.AddParam("scan_date", "2022-05-09")
 	uploadRequest.AddParam("minimum_severity", "Info")
 	uploadRequest.AddParam("active", "true")
 	uploadRequest.AddParam("verified", "true")
-	uploadRequest.AddParam("push_to_jira", "false")
-	uploadRequest.AddParam("close_old_findings", "false")
-	uploadRequest.AddParam("engagement", "1")
-	uploadRequest.AddParam("lead", "1")
-	uploadRequest.AddParam("tags", "['test']")
-	uploadRequest.AddParam("scan_date", "2022-05-09")
-
-	log.Printf("Request type: %T \n", uploadRequest)
-	log.Printf("the upload request is a: %v \n", uploadRequest)
+	uploadRequest.AddParam("scan_type", "Trufflehog3 Scan")
+	uploadRequest.AddParam("product_name", "set-notes-ea")
+	uploadRequest.AddParam("engagement_name", "test import set-notes-ea Dependency Check")
+	uploadRequest.AddParam("environment", "Development")
+	uploadRequest.AddParam("tags", "[\"Test\"]")
 
 	// call the api
 	callApi(uploadRequest)
@@ -162,12 +143,15 @@ func initFlags() {
 	flag.Parse()
 }
 
-func NewRequest(method, url string, body *bytes.Buffer, headers []Header, params []Param) *Request {
+func NewRequest(method, url string, body *bytes.Buffer, writer *multipart.Writer, headers []Header, params []Param) *Request {
 	if body == nil {
-		body = new(bytes.Buffer)
+		body = &bytes.Buffer{}
+	}
+	if writer == nil {
+		writer = multipart.NewWriter(body)
 	}
 
-	return &Request{method: method, url: url, body: body, headers: headers, params: params}
+	return &Request{method: method, url: url, body: body, writer: writer, headers: headers, params: params}
 }
 
 func main() {
@@ -177,7 +161,7 @@ func main() {
 	fmt.Println("Server is ", serverFlag)
 	fmt.Printf("Scan Type is %s \n\n", scanTypeFlag)
 
-	GetUsers(serverFlag, tokenFlag)
+	// GetUsers(serverFlag, tokenFlag)
 	uploadReport(serverFlag, reportPathFlag, tokenFlag)
 
 }
