@@ -16,6 +16,6 @@ jobs:
         run: go build -o dojoClient main.go
       - name: Test
         run: go test -v ./...
-      - name: List files
-        run: docker build . -t dojoClient
+      - name: Build Docker Image
+        run: docker build -t dojoClient .
        
