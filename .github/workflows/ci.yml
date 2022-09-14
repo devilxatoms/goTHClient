@@ -19,3 +19,4 @@ jobs:
       - name: List files
         run: |
           ls -la
+          main
