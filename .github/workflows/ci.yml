@@ -13,10 +13,9 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Build
-        run: go build -v ./...
+        run: go build main.go
       - name: Test
         run: go test -v ./...
       - name: List files
         run: |
           ls -la
-          goTHClient
