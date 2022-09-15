@@ -8,6 +8,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type Header struct {
@@ -45,6 +46,16 @@ func formData(reportPath string) (*multipart.Writer, *bytes.Buffer) {
 	// writer.Close()
 
 	return writer, body
+}
+
+func getScanTypeDictionary() []string {
+	file, err := os.ReadFile("./scanTypesDictionary.txt")
+	if err != nil {
+		fmt.Print(err)
+	}
+	str := string(file)
+	dictionary := strings.Split(str, ",")
+	return dictionary
 }
 
 func (r *Request) AddHeader(name, value string) {
@@ -109,7 +120,7 @@ func GetUsers(server, token string) (*http.Response, error) {
 	return resp, err
 }
 
-func uploadReport(server, reportPath, token string) (*http.Response, error) {
+func uploadReport(server, reportPath, token, scanTypeFlag string) (*http.Response, error) {
 
 	// get the file as a multipart body
 	wr, dt := formData(reportPath)
@@ -122,7 +133,7 @@ func uploadReport(server, reportPath, token string) (*http.Response, error) {
 	uploadRequest.AddParam("minimum_severity", "Info")
 	uploadRequest.AddParam("active", "true")
 	uploadRequest.AddParam("verified", "true")
-	uploadRequest.AddParam("scan_type", "Trufflehog3 Scan")
+	uploadRequest.AddParam("scan_type", scanTypeFlag)
 	uploadRequest.AddParam("product_name", "set-notes-ea")
 	uploadRequest.AddParam("engagement_name", "test import set-notes-ea Dependency Check")
 	uploadRequest.AddParam("environment", "Development")
@@ -154,14 +165,15 @@ func NewRequest(method, url string, body *bytes.Buffer, writer *multipart.Writer
 }
 
 func main() {
+
 	initFlags()
 	fmt.Println("Token is ", tokenFlag)
 	fmt.Println("Path is ", reportPathFlag)
 	fmt.Println("Server is ", serverFlag)
 	fmt.Printf("Scan Type is %s \n\n", scanTypeFlag)
 
-	GetUsers(serverFlag, tokenFlag)
-	resp, err := uploadReport(serverFlag, reportPathFlag, tokenFlag)
+	// GetUsers(serverFlag, tokenFlag)
+	resp, err := uploadReport(serverFlag, reportPathFlag, tokenFlag, scanTypeFlag)
 	if err != nil {
 		fmt.Println("Error: ", err)
 	} else {
