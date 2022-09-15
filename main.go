@@ -8,7 +8,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
-	"strings"
 )
 
 type Header struct {
@@ -48,15 +47,15 @@ func formData(reportPath string) (*multipart.Writer, *bytes.Buffer) {
 	return writer, body
 }
 
-func getScanTypeDictionary() []string {
-	file, err := os.ReadFile("./scanTypesDictionary.txt")
-	if err != nil {
-		fmt.Print(err)
-	}
-	str := string(file)
-	dictionary := strings.Split(str, ",")
-	return dictionary
-}
+// func getScanTypeDictionary() []string {
+// 	file, err := os.ReadFile("./scanTypesDictionary.txt")
+// 	if err != nil {
+// 		fmt.Print(err)
+// 	}
+// 	str := string(file)
+// 	dictionary := strings.Split(str, ",")
+// 	return dictionary
+// }
 
 func (r *Request) AddHeader(name, value string) {
 	r.headers = append(r.headers, Header{name: name, value: value})
