@@ -33,4 +33,9 @@ jobs:
         
       - name: Run Docker Image
         run: docker run dojo-client:latest -h
+
+      - name: Tag and Push Docker Image
+        run: |
+          docker tag dojo-client:latest ghcr.io/devilxatoms/dojo-client:latest
+          docker push ghcr.io/devilxatoms/dojo-client:latest
        
