@@ -1,8 +1,8 @@
 FROM golang:1.9.2-alpine
 
 
-COPY ./dojoClient /bin/dojoClient
-RUN chmod +x /bin/dojoClient
+COPY ./dojoClient /
+RUN chmod +x /dojoClient
 
-ENTRYPOINT ["/bin/dojoClient"]
+ENTRYPOINT ["/dojoClient"]
 CMD [ "-h" ]
