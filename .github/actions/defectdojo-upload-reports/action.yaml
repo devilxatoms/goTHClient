@@ -1,0 +1,30 @@
+name: 'envsubst-action'
+description: wrapper for envsubst
+branding:
+  icon: 'terminal'
+  color: 'yellow'
+inputs:
+  dojo_url:
+    description: 'Defectdojo URL'
+    required: true
+  dojo_api_key:
+    description: 'Defectdojo API Key'
+    required: true
+  dojo_scan_type:
+    description: 'Defectdojo Scan Type'
+    required: 
+  dojo_report_path:
+    description: 'Defectdojo Report Path'
+    required: true
+runs:
+  using: 'docker'
+  image: docker://ghcr.io/devilxatoms/dojo-client:latest
+  args:
+    - -s
+    - ${{ inputs.dojo_scan_type }}
+    - -e
+    - ${{ inputs.dojo_url }}
+    - -t
+    - ${{ inputs.dojo_api_key }}
+    - -p
+    - ${{ inputs.dojo_report_path }}

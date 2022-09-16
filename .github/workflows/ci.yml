@@ -40,7 +40,7 @@ jobs:
           docker push ghcr.io/devilxatoms/dojo-client:latest
        
       - name: Test action
-        uses: devilxatoms/goTHClient/uploadReports@main
+        uses: devilxatoms/goTHClient/defectdojo-upload-reports@main
         with:
           server_url: '${{ secrets.DEFECTDOJO_URL }}'
           api_key: ${{ secrets.DEFECTDOJO_API_KEY }}
