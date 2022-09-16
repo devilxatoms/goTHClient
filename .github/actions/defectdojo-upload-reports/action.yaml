@@ -12,7 +12,7 @@ inputs:
     required: true
   dojo_scan_type:
     description: 'Defectdojo Scan Type'
-    required: 
+    required: true
   dojo_report_path:
     description: 'Defectdojo Report Path'
     required: true
