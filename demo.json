@@ -1,0 +1,59 @@
+[
+    {
+      "rule": {
+        "id": "high-entropy",
+        "message": "High Entropy",
+        "severity": "MEDIUM"
+      },
+      "path": ".github/workflows/trivy.yml",
+      "line": "59",
+      "secret": "b8bddd3dfa8a32bf5211be4f9dbc6f64556b6d94",
+      "context": {
+        "59": "          -H \"Authorization: Token b8bddd3dfa8a32bf5211be4f9dbc6f64556b6d94\" \\"
+      },
+      "id": "4197cf64-33b0-3a2a-a8f5-07857b60c1bf",
+      "branch": null,
+      "message": null,
+      "author": null,
+      "commit": null,
+      "date": null
+    },
+    {
+      "rule": {
+        "id": "high-entropy",
+        "message": "High Entropy",
+        "severity": "MEDIUM"
+      },
+      "path": ".github/workflows/trufflehog2.bk",
+      "line": "62",
+      "secret": "b8bddd3dfa8a32bf5211be4f9dbc6f64556b6d94",
+      "context": {
+        "62": "            curl -X POST https://defectdojo-dev.sdlc.app.cbrands.com/api/v2/import-scan/ -H \"Authorization: Token b8bddd3dfa8a32bf5211be4f9dbc6f64556b6d94\" \\"
+      },
+      "id": "9b3fbfe3-8891-330c-bbea-5130cc371fc3",
+      "branch": null,
+      "message": null,
+      "author": null,
+      "commit": null,
+      "date": null
+    },
+    {
+      "rule": {
+        "id": "high-entropy",
+        "message": "High Entropy",
+        "severity": "MEDIUM"
+      },
+      "path": "README.md",
+      "line": "9",
+      "secret": "20496fb0dcaa99925ff35903bf6fa62a129402db",
+      "context": {
+        "9": "[![Bugs](https://sonarqube-dev.sdlc.app.cbrands.com/api/project_badges/measure?project=set-notes-ea&metric=bugs&token=squ_20496fb0dcaa99925ff35903bf6fa62a129402db)](https://sonarqube-dev.sdlc.app.cbrands.com/dashboard?id=set-notes-ea)"
+      },
+      "id": "eb5fe7de-5db8-3fc9-a3b1-4bbb2ea508c5",
+      "branch": null,
+      "message": null,
+      "author": null,
+      "commit": null,
+      "date": null
+    }
+  ]

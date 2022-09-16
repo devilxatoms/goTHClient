@@ -45,4 +45,4 @@ jobs:
           dojo_url: '${{ secrets.DEFECTDOJO_URL }}'
           dojo_api_key: ${{ secrets.DEFECTDOJO_API_KEY }}
           dojo_scan_type: 'Trufflehog3 Scan'
-          dojo_report_path: './report.json'
+          dojo_report_path: './demo.json'
