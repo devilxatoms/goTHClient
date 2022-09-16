@@ -39,3 +39,10 @@ jobs:
           docker tag dojo-client:latest ghcr.io/devilxatoms/dojo-client:latest
           docker push ghcr.io/devilxatoms/dojo-client:latest
        
+      - name: Test action
+        uses: devilxatoms/goTHClient/uploadReports@main
+        with:
+          server_url: '${{ secrets.DEFECTDOJO_URL }}'
+          api_key: ${{ secrets.DEFECTDOJO_API_KEY }}
+          report_type: 'Trufflehog3 Scan'
+          report_path: './report.json'
