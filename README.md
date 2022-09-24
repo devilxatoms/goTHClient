@@ -1,2 +1,1 @@
-# goTHClient
-Golang Trufflehog client
+# Defectdojo API Client

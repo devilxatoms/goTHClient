@@ -34,6 +34,15 @@ var reportPathFlag string
 var serverFlag string
 var scanTypeFlag string
 
+var minServerityFlag string
+var scanDateFlag string
+var isActiveFlag bool
+var isVerifiedFlag bool
+var productNameFlag string
+var engagementNameFlag string
+var environmentFlag string
+var tagsFlag string
+
 func formData(reportPath string) (*multipart.Writer, *bytes.Buffer) {
 	file, _ := os.Open(reportPath)
 	defer file.Close()
@@ -148,6 +157,7 @@ func initFlags() {
 	flag.StringVar(&reportPathFlag, "p", "defectDojo.json", "Defect Dojo Report Path")
 	flag.StringVar(&serverFlag, "e", "", "DefectDojo Server Url")
 	flag.StringVar(&scanTypeFlag, "s", "", "Defect Dojo Scan Type")
+	flag.StringVar(&minServerityFlag, "m", "", "Defect Dojo Minimum Severity")
 	flag.Parse()
 
 }
